@@ -1,0 +1,5 @@
+/vendor/
+*.cov
+/coverage/
+/realword-server
+/bin/
