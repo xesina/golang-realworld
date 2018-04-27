@@ -3,14 +3,15 @@ package main
 import (
 	"log"
 
-	"github.com/xesina/golang-realworld/pkg/cmd"
-	"github.com/xesina/golang-realworld/pkg/router"
+	"context"
+	"net/http"
 	"os"
 	"os/signal"
 	"time"
-	"net/http"
-	"context"
+
 	"github.com/gin-gonic/gin"
+	"github.com/xesina/golang-realworld/pkg/cmd"
+	"github.com/xesina/golang-realworld/pkg/router"
 )
 
 func main() {
@@ -45,7 +46,7 @@ func main() {
 
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 5 seconds.
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	log.Println("Shutdown Server ...")
