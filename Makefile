@@ -10,7 +10,7 @@ export VERSION=dev
 export COVERAGE_DIR=$(ROOT)/coverage
 export GLIDE_HOME=$(HOME)/.glide
 export SERVER_ADDRESS=0.0.0.0:8585
-export APP=backend
+export APP=golang-realword
 export LDFLAGS="-w -s -X main.BuildTime=`date -u +%Y/%m/%d_%H:%M:%S` -X main.BuildID=`git rev-parse HEAD` -X main.Version=`git tag -l --points-at HEAD`"
 export DEBUG= 1
 
@@ -33,10 +33,10 @@ install: fetch
 	go install -v -a -installsuffix cgo -ldflags $(LDFLAGS) *.go
 
 run:
-	go run -ldflags $(LDFLAGS) *.go
+	go run -ldflags $(LDFLAGS) cmd/main.go
 
 run-mac:
-	GOOS=darwin go run -ldflags $(LDFLAGS) *.go
+	GOOS=darwin go run -ldflags $(LDFLAGS) cmd/main.go
 
 ######
 # Lint
@@ -114,7 +114,7 @@ glide-install: check-glide check-glide-init
 #########
 
 check-migrate:
-	which migrate || go get -u -v git.vada.ir/approo/migrate
+	which migrate || go get -u -v github.com/xesina/migrate
 
 migrate-create: check-migrate
 	migrate create --name=$(NAME)
