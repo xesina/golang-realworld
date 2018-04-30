@@ -3,8 +3,8 @@ export ROOT=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 export CGO_ENABLED= 0
 export GOOS=linux
 export ENV=development
-export DATABASE_URI=postgres://test:test@127.0.0.1:5432/realword?sslmode=disable
-export DATABASE_URI_TEST=postgres://test:test@127.0.0.1:5432/realword_test?sslmode=disable
+export DATABASE_URI=postgres://realworld:secret@127.0.0.1:5432/realworld?sslmode=disable
+export DATABASE_URI_TEST=postgres://realworld:secret@127.0.0.1:5432/realworld_test?sslmode=disable
 export LOG_LEVEL=DEBUG
 export VERSION=dev
 export COVERAGE_DIR=$(ROOT)/coverage

@@ -2,16 +2,22 @@ package main
 
 import (
 	"log"
-
 	"context"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/xesina/golang-realworld/pkg/cmd"
 	"github.com/xesina/golang-realworld/pkg/router"
+	"github.com/jinzhu/gorm"
+	"github.com/xesina/golang-realworld/models"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"fmt"
+)
+
+var (
+	db *gorm.DB
 )
 
 func main() {
@@ -25,6 +31,21 @@ func main() {
 	}
 
 	opts := app.Options()
+	fmt.Println(opts.DatabaseURI)
+	db, err = gorm.Open("postgres", opts.DatabaseURI)
+	db.DB()
+	db.DB().Ping()
+	db.DB().SetMaxIdleConns(10)
+	db.DB().SetMaxOpenConns(100)
+	db.LogMode(true)
+
+	if err != nil {
+		panic("failed to connect database")
+	}
+	defer db.Close()
+
+	db.AutoMigrate(&models.User{})
+
 	r := router.Engine(opts.Env)
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
