@@ -9,7 +9,7 @@ export LOG_LEVEL=DEBUG
 export VERSION=dev
 export COVERAGE_DIR=$(ROOT)/coverage
 export GLIDE_HOME=$(HOME)/.glide
-export SERVER_ADDRESS=0.0.0.0:8585
+export SERVER_ADDRESS=127.0.0.1:8585
 export APP=golang-realword
 export LDFLAGS="-w -s -X main.BuildTime=`date -u +%Y/%m/%d_%H:%M:%S` -X main.BuildID=`git rev-parse HEAD` -X main.Version=`git tag -l --points-at HEAD`"
 export DEBUG= 1
