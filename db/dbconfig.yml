@@ -1,0 +1,13 @@
+development:
+    dialect: postgres
+    dsn: host=127.0.0.1 user=realworld password=secret dbname=realworld sslmode=disable
+    dir: db/postgres/migrations
+    table: migrations
+
+testing:
+    dialect: postgres
+    dsn: host=postgres user=realworld password=secret dbname=realworld_test sslmode=disable
+    dir: db/postgres/migrations
+    table: migrations
+
+

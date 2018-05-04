@@ -2,16 +2,24 @@ package main
 
 import (
 	"log"
-
 	"context"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/xesina/golang-realworld/pkg/cmd"
 	"github.com/xesina/golang-realworld/pkg/router"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"fmt"
+	"github.com/xesina/golang-realworld/users"
+	gorm2 "github.com/xesina/golang-realworld/db/gorm"
+	"github.com/xesina/golang-realworld/pkg/types"
+)
+
+var (
+	db *gorm.DB
 )
 
 func main() {
@@ -25,11 +33,41 @@ func main() {
 	}
 
 	opts := app.Options()
+	fmt.Println(opts.DatabaseURI)
+	db, err = gorm.Open("postgres", opts.DatabaseURI)
+	db.DB()
+	db.DB().Ping()
+	db.DB().SetMaxIdleConns(10)
+	db.DB().SetMaxOpenConns(100)
+	db.LogMode(true)
+
+	if err != nil {
+		panic("failed to connect database")
+	}
+	defer db.Close()
+
+	db.AutoMigrate(&users.User{})
+	db.Create(&users.User{Username: "test", Email: "test@test.com", Password: "test"})
+
 	r := router.Engine(opts.Env)
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
+	ur := gorm2.NewUserRepository(db)
+	ui := users.NewUserInteractor(ur)
+	r.GET("/users/1", func(c *gin.Context) {
+		u, err := ui.Find(1)
+		if err != nil {
+			panic(err)
+		}
+		c.JSON(200, gin.H{"user": struct {
+			Username string           `json:"username"`
+			Email    string           `json:"email"`
+			Bio      types.NullString `json:"bio"`
+			Image    types.NullString `json:"image"`
+		}{
+			u.Username,
+			u.Email,
+			u.Bio,
+			u.Image,
+		}})
 	})
 
 	srv := &http.Server{
