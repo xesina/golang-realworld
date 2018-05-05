@@ -17,7 +17,6 @@ func NewUserRepository(db *gorm.DB) users.UserRepository {
 
 func (r *userRepository) Find(id uint) (*users.User, error) {
 	user := new(users.User)
-	r.db.First(user).RecordNotFound()
 	if err := r.db.First(user).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return nil, nil

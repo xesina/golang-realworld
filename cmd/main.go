@@ -1,21 +1,23 @@
 package main
 
 import (
-	"log"
 	"context"
+	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/xesina/golang-realworld/pkg/cmd"
-	"github.com/xesina/golang-realworld/pkg/router"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"fmt"
-	"github.com/xesina/golang-realworld/users"
 	gorm2 "github.com/xesina/golang-realworld/db/gorm"
+	"github.com/xesina/golang-realworld/pkg/cmd"
+	"github.com/xesina/golang-realworld/pkg/router"
 	"github.com/xesina/golang-realworld/pkg/types"
+	"github.com/xesina/golang-realworld/users"
 )
 
 var (
@@ -52,6 +54,43 @@ func main() {
 	r := router.Engine(opts.Env)
 	ur := gorm2.NewUserRepository(db)
 	ui := users.NewUserInteractor(ur)
+
+	r.POST("/api/users/login", func(c *gin.Context) {
+		c.JSON(200, "login")
+	})
+
+	r.POST("/api/users", func(c *gin.Context) {
+		type req struct {
+			User struct {
+				Username string `json:"username"`
+				Email    string `json:"email"`
+				Password string `json:"password"`
+				Bio      string `json:"bio"`
+				Image    string `json:"image"`
+				Token    string `json:"token"`
+			} `json:"user"`
+		}
+		r := req{}
+		if !c.Bind(&r) {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid json"})
+			return
+		}
+		u, err := ui.Register(r.User.Username, r.User.Email, r.User.Password)
+		if err != nil {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "internal error"})
+		}
+		r.User.Token = generateToken(u.ID)
+		c.JSON(200, &r)
+	})
+
+	r.GET("/api/user", func(c *gin.Context) {
+		c.JSON(200, "current user")
+	})
+
+	r.PUT("/api/user", func(c *gin.Context) {
+		c.JSON(200, "update user")
+	})
+
 	r.GET("/users/1", func(c *gin.Context) {
 		u, err := ui.Find(1)
 		if err != nil {
@@ -95,4 +134,18 @@ func main() {
 		log.Fatal("Server Shutdown:", err)
 	}
 	log.Println("Server exiting")
+}
+
+const secret = "!!Strong Key!!"
+
+func generateToken(id uint) string {
+	// Create token
+	token := jwt.New(jwt.SigningMethodHS256)
+	// Set claims
+	claims := token.Claims.(jwt.MapClaims)
+	claims["id"] = "Jon Snow"
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	// Generate encoded token and send it as response.
+	t, _ := token.SignedString([]byte(secret))
+	return t
 }

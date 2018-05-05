@@ -4,11 +4,12 @@ import (
 	"log"
 	"os"
 	"testing"
-	userMock "github.com/xesina/golang-realworld/mock/users"
-	"github.com/xesina/golang-realworld/users"
-	"github.com/stretchr/testify/require"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	userMock "github.com/xesina/golang-realworld/mock/users"
 	"github.com/xesina/golang-realworld/pkg/types"
+	"github.com/xesina/golang-realworld/users"
 )
 
 var (

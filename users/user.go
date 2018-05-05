@@ -2,6 +2,7 @@ package users
 
 import (
 	"time"
+
 	"github.com/xesina/golang-realworld/pkg/types"
 )
 
@@ -10,8 +11,8 @@ type User struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt types.NullTime `sql:"index"`
-	Username  string         `gorm:"unique_index"`
-	Email     string         `gorm:"unique_index"`
+	Username  string         `gorm:"unique_index;not null"`
+	Email     string         `gorm:"unique_index;not null"`
 	Password  string
 	Bio       types.NullString
 	Image     types.NullString
@@ -19,6 +20,7 @@ type User struct {
 
 type UserRepository interface {
 	Find(id uint) (*User, error)
+	//TODO: How about `Create(user *User) error` ??
 	Create(user *User) (*User, error)
 	Update(user *User) error
 }
