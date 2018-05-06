@@ -16,7 +16,6 @@ import (
 	gorm2 "github.com/xesina/golang-realworld/db/gorm"
 	"github.com/xesina/golang-realworld/pkg/cmd"
 	"github.com/xesina/golang-realworld/pkg/router"
-	"github.com/xesina/golang-realworld/pkg/types"
 	"github.com/xesina/golang-realworld/users"
 )
 
@@ -58,7 +57,6 @@ func main() {
 	r.POST("/api/users/login", func(c *gin.Context) {
 		c.JSON(200, "login")
 	})
-
 	r.POST("/api/users", func(c *gin.Context) {
 		type req struct {
 			User struct {
@@ -82,38 +80,67 @@ func main() {
 		r.User.Token = generateToken(u.ID)
 		c.JSON(200, &r)
 	})
-
 	r.GET("/api/user", func(c *gin.Context) {
-		c.JSON(200, "current user")
+		c.JSON(200, "get current user")
 	})
-
 	r.PUT("/api/user", func(c *gin.Context) {
 		c.JSON(200, "update user")
 	})
 
-	r.GET("/users/1", func(c *gin.Context) {
-		u, err := ui.Find(1)
-		if err != nil {
-			panic(err)
-		}
-		c.JSON(200, gin.H{"user": struct {
-			Username string           `json:"username"`
-			Email    string           `json:"email"`
-			Bio      types.NullString `json:"bio"`
-			Image    types.NullString `json:"image"`
-		}{
-			u.Username,
-			u.Email,
-			u.Bio,
-			u.Image,
-		}})
+	r.GET("/api/profiles/:username", func(c *gin.Context) {
+		c.JSON(200, "Get Profile")
+	})
+	r.POST("/api/profiles/:username/follow", func(c *gin.Context) {
+		c.JSON(200, "Follow user")
+	})
+	r.DELETE("/api/profiles/:username/follow", func(c *gin.Context) {
+		c.JSON(200, "Unfollow user")
+	})
+
+	r.GET("/api/articles", func(c *gin.Context) {
+		c.JSON(200, "Returns most recent articles globally by default, provide tag, author or favorited query parameter to filter results")
+	})
+	r.GET("/api/articles/feed", func(c *gin.Context) {
+		c.JSON(200, "Feed Articles")
+	})
+	r.GET("/api/articles/:slug", func(c *gin.Context) {
+		c.JSON(200, "get articles")
+	})
+	r.POST("/api/articles", func(c *gin.Context) {
+		c.JSON(200, "create article")
+	})
+	r.PUT("/api/articles/:slug", func(c *gin.Context) {
+		c.JSON(200, "update article")
+	})
+	r.DELETE("/api/articles/:slug", func(c *gin.Context) {
+		c.JSON(200, "delete article")
+	})
+
+	r.POST("/api/articles/:slug/comments", func(c *gin.Context) {
+		c.JSON(200, "add Comments to an Article")
+	})
+	r.GET("/api/articles/:slug/comments", func(c *gin.Context) {
+		c.JSON(200, "Get Comments from an Article")
+	})
+	r.DELETE("/api/articles/:slug/comments/:id", func(c *gin.Context) {
+		c.JSON(200, "delete Comment")
+	})
+
+	r.POST("/api/articles/:slug/favorite", func(c *gin.Context) {
+		c.JSON(200, "favorite article")
+	})
+	r.DELETE("/api/articles/:slug/favorite", func(c *gin.Context) {
+		c.JSON(200, "unfavorite Article")
+	})
+
+	r.GET("/api/tags", func(c *gin.Context) {
+		c.JSON(200, "get tags")
 	})
 
 	srv := &http.Server{
 		Addr:    opts.ServerAddress,
 		Handler: r,
 	}
-
 	go func() {
 		// service connections
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
